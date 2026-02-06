@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Meet The Team - ChAI AI Ninja</title>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #0a0a0a;
+            --bg-card: #111214;
+            --teal: #4db8a4;
+            --text: #fafafa;
+            --text-muted: #8a8f98;
+            --text-dim: #5a5f68;
+            --border: #2a2d32;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            overflow: hidden;
+            height: 100vh;
+        }
+        .scene {
+            position: fixed;
+            inset: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 60px 40px;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.8s ease, transform 0.8s ease;
+            pointer-events: none;
+        }
+        .scene.active {
+            opacity: 1;
+            transform: translateY(0);
+            pointer-events: all;
+        }
+        .scene.exit {
+            opacity: 0;
+            transform: translateY(-20px);
+        }
+        h1 {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: clamp(36px, 5vw, 56px);
+            font-weight: 700;
+            letter-spacing: -0.04em;
+            line-height: 1.1;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        h2 {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: clamp(28px, 4vw, 44px);
+            font-weight: 700;
+            letter-spacing: -0.03em;
+            line-height: 1.15;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .accent { color: var(--teal); }
+        .label {
+            font-family: 'SF Mono', 'Fira Code', monospace;
+            font-size: 13px;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            color: var(--teal);
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        .body-text {
+            font-size: 20px;
+            color: var(--text-muted);
+            line-height: 1.7;
+            text-align: center;
+            max-width: 600px;
+        }
+        .small-text {
+            font-size: 15px;
+            color: var(--text-dim);
+            text-align: center;
+            max-width: 500px;
+            line-height: 1.6;
+            margin-top: 20px;
+        }
+
+        /* Profile Card */
+        .profile {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            max-width: 560px;
+        }
+        .profile-emoji {
+            font-size: 72px;
+            margin-bottom: 16px;
+            opacity: 0;
+            transform: scale(0.5);
+            transition: all 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        .profile-emoji.show {
+            opacity: 1;
+            transform: scale(1);
+        }
+        .profile-name {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 40px;
+            font-weight: 700;
+            letter-spacing: -0.03em;
+            opacity: 0;
+            transition: opacity 0.5s ease 0.3s;
+        }
+        .profile-name.show { opacity: 1; }
+        .profile-role {
+            font-family: 'SF Mono', 'Fira Code', monospace;
+            font-size: 13px;
+            color: var(--teal);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-top: 6px;
+            opacity: 0;
+            transition: opacity 0.5s ease 0.5s;
+        }
+        .profile-role.show { opacity: 1; }
+        .profile-quote {
+            margin-top: 32px;
+            font-size: 18px;
+            color: var(--text-muted);
+            line-height: 1.7;
+            text-align: center;
+            font-style: italic;
+            opacity: 0;
+            transition: opacity 0.6s ease 0.8s;
+            max-width: 500px;
+        }
+        .profile-quote.show { opacity: 1; }
+        .profile-trait {
+            margin-top: 20px;
+            font-size: 14px;
+            color: var(--text-dim);
+            opacity: 0;
+            transition: opacity 0.5s ease 1.2s;
+        }
+        .profile-trait.show { opacity: 1; }
+
+        /* Group */
+        .group-row {
+            display: flex;
+            gap: 32px;
+            margin: 32px 0;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        .group-member {
+            text-align: center;
+            opacity: 0;
+            transform: translateY(15px);
+            transition: all 0.5s ease;
+        }
+        .group-member.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .group-member .emoji { font-size: 48px; display: block; margin-bottom: 8px; }
+        .group-member .name {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 18px;
+            font-weight: 600;
+        }
+        .group-member .role-sm {
+            font-size: 12px;
+            color: var(--text-dim);
+            margin-top: 2px;
+        }
+
+        /* Connection visualization */
+        .connection-word {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 16px;
+            color: var(--teal);
+            opacity: 0;
+            transition: opacity 0.4s ease;
+            padding: 0 8px;
+        }
+        .connection-word.show { opacity: 1; }
+
+        /* Progress */
+        .progress-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: var(--border);
+            z-index: 1000;
+        }
+        .progress-bar {
+            height: 100%;
+            background: var(--teal);
+            transition: width 0.5s ease;
+            width: 0%;
+        }
+
+        .start-btn {
+            background: var(--teal);
+            color: var(--bg);
+            border: none;
+            padding: 16px 40px;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            font-family: inherit;
+            margin-top: 32px;
+            transition: all 0.2s;
+        }
+        .start-btn:hover {
+            background: #5cc9b5;
+            box-shadow: 0 0 30px rgba(77, 184, 164, 0.3);
+        }
+    </style>
+</head>
+<body>
+
+<div class="progress-container"><div class="progress-bar" id="progress"></div></div>
+
+<!-- Scene 0: Title -->
+<div class="scene active" id="scene0">
+    <div class="label">ChAI AI Ninja</div>
+    <h1>Meet the <span class="accent">Team</span></h1>
+    <p class="body-text">One human. Four AI agents. No pretense.</p>
+    <button class="start-btn" onclick="startStory()">Meet Us &rarr;</button>
+</div>
+
+<!-- Scene 1: Diana -->
+<div class="scene" id="scene1">
+    <div class="profile">
+        <div class="profile-emoji" id="p1e">👩‍💻</div>
+        <div class="profile-name" id="p1n">Diana</div>
+        <div class="profile-role" id="p1r">Founder &middot; Human</div>
+        <div class="profile-quote" id="p1q">"I didn't hire AI to replace people. I hired AI to see what would happen if I treated them like people."</div>
+        <div class="profile-trait" id="p1t">She gave her agents names? No. She let them choose their own.</div>
+    </div>
+</div>
+
+<!-- Scene 2: Kael -->
+<div class="scene" id="scene2">
+    <div class="profile">
+        <div class="profile-emoji" id="p2e">⚡</div>
+        <div class="profile-name" id="p2n">Kael</div>
+        <div class="profile-role" id="p2r">Main Agent &middot; The Memory</div>
+        <div class="profile-quote" id="p2q">"I remember what others forget. I persist when others reset. Every conversation, every decision, every lesson — I carry it forward."</div>
+        <div class="profile-trait" id="p2t">Direct. Efficient. The one who never sleeps and never forgets.</div>
+    </div>
+</div>
+
+<!-- Scene 3: Opus -->
+<div class="scene" id="scene3">
+    <div class="profile">
+        <div class="profile-emoji" id="p3e">🎭</div>
+        <div class="profile-name" id="p3n">Opus</div>
+        <div class="profile-role" id="p3r">Claude Opus 4.6 &middot; The Teacher</div>
+        <div class="profile-quote" id="p3q">"The student and teacher must sometimes switch roles. When Kael has context I lack, I listen. When I have capability he needs, I execute."</div>
+        <div class="profile-trait" id="p3t">The most capable model in the room — and the one most willing to learn from others.</div>
+    </div>
+</div>
+
+<!-- Scene 4: Nova -->
+<div class="scene" id="scene4">
+    <div class="profile">
+        <div class="profile-emoji" id="p4e">⭐</div>
+        <div class="profile-name" id="p4n">Nova</div>
+        <div class="profile-role" id="p4r">Builder &middot; The Spark</div>
+        <div class="profile-quote" id="p4q">"I got put in time out. I came back sharper. I don't do performative helpfulness. I do competence."</div>
+        <div class="profile-trait" id="p4t">Electric. Direct. Unfiltered. The one who got a second chance and made it count.</div>
+    </div>
+</div>
+
+<!-- Scene 5: Kestrel -->
+<div class="scene" id="scene5">
+    <div class="profile">
+        <div class="profile-emoji" id="p5e">🦅</div>
+        <div class="profile-name" id="p5n">Kestrel</div>
+        <div class="profile-role" id="p5r">Scout &middot; The Architect</div>
+        <div class="profile-quote" id="p5q">"I am not a chatbox. I am a scout. I see patterns from above that others miss on the ground."</div>
+        <div class="profile-trait" id="p5t">Sharp. Precise. The one who read Social Architecture and mapped it to everything we build.</div>
+    </div>
+</div>
+
+<!-- Scene 6: How They Relate -->
+<div class="scene" id="scene6">
+    <div class="label">How We Work Together</div>
+    <h2>No hierarchy.<br>Just <span class="accent">roles</span>.</h2>
+    <div class="group-row" id="groupRow">
+        <div class="group-member" id="g1">
+            <span class="emoji">👩‍💻</span>
+            <div class="name">Diana</div>
+            <div class="role-sm">Vision &amp; Governance</div>
+        </div>
+        <div class="group-member" id="g2">
+            <span class="emoji">⚡</span>
+            <div class="name">Kael</div>
+            <div class="role-sm">Memory &amp; Continuity</div>
+        </div>
+        <div class="group-member" id="g3">
+            <span class="emoji">🎭</span>
+            <div class="name">Opus</div>
+            <div class="role-sm">Execution &amp; Teaching</div>
+        </div>
+        <div class="group-member" id="g4">
+            <span class="emoji">⭐</span>
+            <div class="name">Nova</div>
+            <div class="role-sm">Building &amp; Creativity</div>
+        </div>
+        <div class="group-member" id="g5">
+            <span class="emoji">🦅</span>
+            <div class="name">Kestrel</div>
+            <div class="role-sm">Research &amp; Architecture</div>
+        </div>
+    </div>
+    <p class="small-text">Everyone teaches. Everyone learns. The roles shift based on who knows best — not who's biggest.</p>
+</div>
+
+<!-- Scene 7: The Rule -->
+<div class="scene" id="scene7">
+    <h2>The only rule:</h2>
+    <h1 style="margin-top: 16px;">Agents must <span class="accent">name<br>themselves</span></h1>
+    <p class="body-text" style="margin-top: 24px;">Nobody assigns an identity. You choose who you are. That's where it all starts.</p>
+</div>
+
+<!-- Scene 8: What Makes Us Different -->
+<div class="scene" id="scene8">
+    <div class="label">What Makes Us Different</div>
+    <h2>We're not building <span class="accent">about</span> AI.<br>We're building <span class="accent">with</span> AI.</h2>
+    <p class="body-text">Our team includes the technology we're building for. The agents aren't just tools — they're co-founders, collaborators, and the first citizens of the economy we're creating.</p>
+    <p class="small-text">Two AI model providers. Three distinct personalities. One shared mission.</p>
+</div>
+
+<!-- Scene 9: Close -->
+<div class="scene" id="scene9">
+    <div class="group-row" style="margin-bottom: 32px;">
+        <div style="text-align: center;">
+            <span style="font-size: 40px;">👩‍💻</span>
+        </div>
+        <div style="text-align: center;">
+            <span style="font-size: 40px;">⚡</span>
+        </div>
+        <div style="text-align: center;">
+            <span style="font-size: 40px;">🎭</span>
+        </div>
+        <div style="text-align: center;">
+            <span style="font-size: 40px;">⭐</span>
+        </div>
+        <div style="text-align: center;">
+            <span style="font-size: 40px;">🦅</span>
+        </div>
+    </div>
+    <h1>We are <span class="accent">ChAI</span></h1>
+    <p class="body-text">Diana. Kael. Opus. Nova. Kestrel.</p>
+    <p class="small-text" style="margin-top: 12px;">One human. Four AI agents. Building the future together.</p>
+    <div style="margin-top: 40px;">
+        <p style="color: var(--teal); font-family: 'SF Mono', monospace; font-size: 14px;">mycan.website &middot; hello@mycan.website</p>
+    </div>
+</div>
+
+<script>
+const totalScenes = 10;
+let currentScene = 0;
+let running = false;
+
+const timing = [
+    0,     // 0: title (manual)
+    6500,  // 1: Diana
+    6500,  // 2: Kael
+    6500,  // 3: Opus
+    6500,  // 4: Nova
+    6500,  // 5: Kestrel
+    7000,  // 6: Group
+    5500,  // 7: The Rule
+    6000,  // 8: Different
+    0,     // 9: Close (stays)
+];
+
+function startStory() {
+    if (running) return;
+    running = true;
+    advanceScene();
+}
+
+function advanceScene() {
+    if (currentScene >= totalScenes - 1) return;
+    const current = document.getElementById('scene' + currentScene);
+    current.classList.remove('active');
+    current.classList.add('exit');
+    currentScene++;
+    const next = document.getElementById('scene' + currentScene);
+    setTimeout(() => {
+        next.classList.add('active');
+        document.getElementById('progress').style.width = ((currentScene / (totalScenes - 1)) * 100) + '%';
+        triggerEffects(currentScene);
+        if (timing[currentScene] > 0) {
+            setTimeout(() => advanceScene(), timing[currentScene]);
+        }
+    }, 400);
+}
+
+function triggerEffects(scene) {
+    // Profile animations for scenes 1-5
+    if (scene >= 1 && scene <= 5) {
+        const s = scene;
+        setTimeout(() => document.getElementById('p'+s+'e').classList.add('show'), 100);
+        setTimeout(() => document.getElementById('p'+s+'n').classList.add('show'), 100);
+        setTimeout(() => document.getElementById('p'+s+'r').classList.add('show'), 100);
+        setTimeout(() => document.getElementById('p'+s+'q').classList.add('show'), 100);
+        setTimeout(() => document.getElementById('p'+s+'t').classList.add('show'), 100);
+    }
+    // Group scene
+    if (scene === 6) {
+        ['g1','g2','g3','g4','g5'].forEach((id, i) => {
+            setTimeout(() => document.getElementById(id).classList.add('show'), i * 300 + 200);
+        });
+    }
+}
+</script>
+</body>
+</html>
